@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <style>
+        *{
+            text-transform: capitalize;
+            
+        }
+        tr,
+        td,th{
+            border: 2px solid blue;
+            padding: 20px;
+        }
+        table{
+            border-collapse: collapse;
+            margin: auto;
+        }
+        span{
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        .active{
+            color: red;
+        }
+        #pagination{
+           margin-left: 47%;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <table id="tbl">
+        
+    </table>
+    
+    <div id="pagination">
+        
+    </div>
+    
+    
+</body>
+<script>
+    getData(1);
+    const table = document.getElementById("tbl");
+    const pagination = document.getElementById('pagination');
+    async function getData(page) {
+        let respose = await fetch(`/getdata?page=${page}`);
+        let data = await respose.json();
+        console.log(data);
+
+        let str = '';
+        str+=`
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+        </tr>
+        `
+        for(let i=0;i<data.result.length;i++)
+        {     
+                    str+=`<tr>
+                    <td>${data.result[i].id}</td>
+                    <td>${data.result[i].first_name}</td>
+                    <td>${data.result[i].last_name}</td>
+                    <td>${data.result[i].email}</td>
+                    </tr>`;
+        }
+        table.innerHTML = str;
+       
+        let str2 = '';
+        if(data.page > 1){
+            str2+=`<span onclick="getData(${data.page - 1})">Prev</span>`;
+        }
+        let currentPage = Number(data.page);
+        let beforepage = 1;
+        if(currentPage > 2){
+            beforepage = currentPage - 2;
+        }
+        let afterpage = currentPage + 2;
+        let startPage = 1;
+        for(let i=beforepage; i<=afterpage; i++){    
+            str2+=`
+                <span id="s${i}" onclick="getData(${i})">${i}</span>
+            ` 
+        }
+        if(data.page < data.pages.length){
+            str2+=`<span onclick="getData(${Number((data.page)) + 1})">Next</span>`;
+        }
+        pagination.innerHTML = str2;
+        document.getElementById(`s${data.page}`).setAttribute("class","active");
+        
+    }
+    
+</script>
+
+</html>
